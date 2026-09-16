@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scan'Run — Course à checkpoints, Stade de Saint-Marcel, Marseille</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F4F4EE;
+    --paper-2: #EAEADF;
+    --ink: #171A16;
+    --ink-soft: #52564C;
+    --ink-faint: #8B8F82;
+    --route: #FF4E23;
+    --route-deep: #C93A17;
+    --signal: #1C3F8F;
+    --marker: #FFC63A;
+    --line: #D9D9CB;
+    --radius: 3px;
+    --maxw: 1140px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', 'Segoe UI', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--route); color:#fff; }
+  a{ color:inherit; text-decoration:none; }
+  img,svg{ max-width:100%; display:block; }
+  :focus-visible{ outline:3px solid var(--signal); outline-offset:3px; }
+
+  .display{ font-family:'Anton', 'Impact', sans-serif; font-weight:400; letter-spacing:0.01em; text-transform:uppercase; }
+
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+
+  /* ---------- Nav ---------- */
+  header.topnav{
+    position:sticky; top:0; z-index:40;
+    background:rgba(244,244,238,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:2px solid var(--ink);
+  }
+  .topnav__row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 24px; max-width:var(--maxw); margin:0 auto;
+  }
+  .topnav__logo{ font-family:'Anton', sans-serif; font-size:22px; letter-spacing:0.02em; }
+  .topnav__logo em{ font-style:normal; color:var(--route); }
+  .topnav__links{ display:flex; gap:30px; font-size:15px; font-weight:500; color:var(--ink-soft); }
+  .topnav__links a:hover{ color:var(--ink); }
+  @media (max-width:700px){ .topnav__links{ display:none; } }
+  .btn{
+    font-family:'Inter', sans-serif; font-weight:600; font-size:15px;
+    padding:11px 22px; border-radius:var(--radius); border:2px solid var(--ink);
+    cursor:pointer; transition:transform .12s ease, background .12s ease, color .12s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn--fill{ background:var(--ink); color:var(--paper); }
+  .btn--fill:hover{ background:var(--route); border-color:var(--route); }
+  .btn--outline{ background:transparent; color:var(--ink); }
+  .btn--outline:hover{ background:var(--ink); color:var(--paper); }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding:76px 0 60px; }
+  .hero__tag{
+    display:inline-block;
+    font-size:14px; font-weight:600; color:var(--ink);
+    background:var(--marker);
+    padding:6px 14px; border-radius:20px;
+    margin-bottom:26px;
+  }
+  .hero h1{
+    font-size:clamp(46px, 7.4vw, 88px);
+    line-height:0.98;
+    margin:0 0 26px;
+    max-width:15ch;
+  }
+  .hero h1 .line{ display:block; }
+  .hero p.lede{
+    font-size:19px; color:var(--ink-soft); max-width:52ch; margin:0 0 34px;
+  }
+  .hero__ctas{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:52px; }
+
+  .countdown{
+    display:flex; align-items:baseline; gap:22px; flex-wrap:wrap;
+    padding-top:28px; border-top:2px solid var(--ink);
+  }
+  .countdown__cell{ display:flex; align-items:baseline; gap:8px; }
+  .countdown__num{ font-family:'Anton', sans-serif; font-size:44px; color:var(--route); }
+  .countdown__unit{ font-size:14px; color:var(--ink-soft); font-weight:500; }
+  .countdown__sep{ color:var(--line); font-size:28px; }
+  @media (max-width:600px){ .countdown{ gap:14px; } .countdown__num{ font-size:32px; } }
+
+  /* ---------- Route spine (runs through the whole page) ---------- */
+  .route-track{ position:relative; }
+  .route-track__rail{
+    position:absolute;
+    left:26px; top:0; bottom:0; width:6px;
+    background:var(--route);
+    border-radius:3px;
+  }
+  @media (max-width:640px){ .route-track__rail{ left:16px; width:4px; } }
+
+  .stop{
+    position:relative;
+    padding:70px 0 70px 84px;
+  }
+  @media (max-width:640px){ .stop{ padding-left:52px; } }
+  .stop:first-child{ padding-top:10px; }
+
+  .stop__marker{
+    position:absolute; left:0; top:74px;
+    width:58px; height:58px;
+    background:var(--paper);
+    border:6px solid var(--route);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton', sans-serif; font-size:15px; color:var(--ink);
+    z-index:2;
+  }
+  @media (max-width:640px){
+    .stop__marker{ width:38px; height:38px; border-width:4px; font-size:11px; left:-3px; top:70px;}
+  }
+  .stop--finish .stop__marker{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+  .stop:first-child .stop__marker{ top:8px; }
+
+  .stop__eyebrow{ font-size:14px; font-weight:600; color:var(--route-deep); margin:0 0 8px; }
+  .stop h2{ font-size:clamp(28px,4vw,42px); margin:0 0 18px; max-width:18ch; }
+  .stop__intro{ color:var(--ink-soft); max-width:56ch; font-size:16px; margin:0 0 36px; }
+
+  /* ---------- Concept steps ---------- */
+  .steps{ display:grid; gap:0; }
+  .step{
+    display:grid; grid-template-columns:76px 1fr; gap:20px;
+    padding:26px 0; border-top:1px solid var(--line);
+  }
+  .step:first-child{ border-top:none; }
+  .step__num{ font-family:'Anton', sans-serif; font-size:44px; color:var(--paper-2); -webkit-text-stroke:2px var(--ink); color:var(--paper); }
+  .step h3{ margin:4px 0 8px; font-size:19px; }
+  .step p{ margin:0; color:var(--ink-soft); font-size:15.5px; max-width:58ch; }
+
+  /* ---------- Distances: signposts ---------- */
+  .signposts{ display:flex; gap:22px; flex-wrap:wrap; }
+  .signpost{
+    flex:1 1 220px;
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:8px 8px 4px 4px;
+    padding:26px 22px 22px;
+    position:relative;
+  }
+  .signpost::after{
+    content:"";
+    position:absolute; left:50%; bottom:-14px; transform:translateX(-50%);
+    width:10px; height:22px; background:var(--ink-faint);
+  }
+  .signpost--a{ background:var(--route); }
+  .signpost--b{ background:var(--signal); }
+  .signpost--c{ background:var(--ink); }
+  .signpost__km{ font-family:'Anton', sans-serif; font-size:56px; line-height:1; }
+  .signpost__unit{ font-size:14px; font-weight:600; opacity:0.85; margin-bottom:14px; }
+  .signpost__name{ font-size:17px; font-weight:700; margin:0 0 8px; }
+  .signpost__desc{ font-size:14px; opacity:0.9; margin:0 0 18px; min-height:58px; }
+  .signpost__price{ font-size:20px; font-weight:700; border-top:1px solid rgba(255,255,255,0.3); padding-top:12px; }
+  .signpost__price small{ display:block; font-weight:400; font-size:12px; opacity:0.75; }
+
+  /* ---------- Parcours list ---------- */
+  .checkpoints{ display:flex; flex-direction:column; gap:0; }
+  .cp{ display:grid; grid-template-columns:64px 1fr; gap:18px; padding:20px 0; border-top:1px solid var(--line); }
+  .cp:first-child{ border-top:none; }
+  .cp__badge{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--paper); border:2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton', sans-serif; font-size:14px;
+  }
+  .cp h3{ margin:2px 0 4px; font-size:17px; }
+  .cp p{ margin:0; color:var(--ink-soft); font-size:14.5px; max-width:56ch; }
+  .cp__bonus{ display:inline-block; margin-top:8px; font-size:12.5px; font-weight:700; color:#fff; background:var(--route); padding:3px 10px; border-radius:12px; }
+
+  /* ---------- Infos ---------- */
+  .infos{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:760px){ .infos{ grid-template-columns:1fr; } }
+  .infos__cell{ border-top:3px solid var(--ink); padding-top:16px; }
+  .infos__cell h4{ margin:0 0 8px; font-size:13px; font-weight:600; color:var(--ink-faint); }
+  .infos__cell p{ margin:0; font-size:19px; font-weight:700; }
+  .infos__cell span{ display:block; margin-top:6px; font-size:14px; color:var(--ink-soft); font-weight:400; }
+
+  /* ---------- Registration ---------- */
+  .register{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:50px; align-items:start; }
+  @media (max-width:900px){ .register{ grid-template-columns:1fr; } }
+
+  .form-field{ margin-bottom:20px; }
+  .form-field label{ display:block; font-size:13px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; }
+  .form-field input, .form-field select{
+    width:100%; background:transparent; border:none; border-bottom:2px solid var(--ink);
+    padding:10px 2px; font-family:'Inter', sans-serif; font-size:16px; color:var(--ink);
+  }
+  .form-field input:focus, .form-field select:focus{ border-bottom-color:var(--route); }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:480px){ .form-row{ grid-template-columns:1fr; } }
+  .form-note{ font-size:13px; color:var(--ink-faint); margin-top:-6px; margin-bottom:24px; }
+
+  .confirm-box{
+    display:none; margin-top:22px; padding:20px; border:2px solid var(--ink); border-radius:6px; font-size:14.5px;
+  }
+  .confirm-box.show{ display:block; }
+  .confirm-box strong{ color:var(--route-deep); }
+
+  .ticket{
+    position:relative;
+    background:#fff;
+    border:2px solid var(--ink);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .ticket__top{ padding:24px 24px 20px; }
+  .ticket__top h4{ margin:0 0 16px; font-size:14px; color:var(--ink-faint); font-weight:600; }
+  .ticket__row{ display:flex; justify-content:space-between; font-size:15.5px; padding:8px 0; border-bottom:1px dashed var(--line); }
+  .ticket__row:last-child{ border-bottom:none; }
+  .ticket__row b{ font-family:'Anton', sans-serif; font-size:17px; font-weight:400; color:var(--route-deep); }
+  .ticket__perf{
+    position:relative;
+    height:0; border-top:2px dashed var(--ink-faint);
+    margin:0 0;
+  }
+  .ticket__perf::before, .ticket__perf::after{
+    content:""; position:absolute; top:50%; transform:translateY(-50%);
+    width:22px; height:22px; background:var(--paper); border-radius:50%;
+  }
+  .ticket__perf::before{ left:-11px; }
+  .ticket__perf::after{ right:-11px; }
+  .ticket__bottom{ padding:18px 24px 22px; display:flex; align-items:center; gap:12px; }
+  .ticket__bottom svg{ width:22px; height:22px; color:var(--signal); flex-shrink:0; }
+  .ticket__bottom p{ margin:0; font-size:13px; color:var(--ink-soft); }
+
+  /* ---------- Footer ---------- */
+  footer{ border-top:2px solid var(--ink); padding:40px 0; }
+  .footer__row{ display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+  .footer__brand{ font-family:'Anton', sans-serif; font-size:18px; }
+  .footer__links{ display:flex; gap:22px; font-size:13.5px; color:var(--ink-soft); flex-wrap:wrap; }
+  .footer__links a:hover{ color:var(--ink); }
+  .footer__copy{ font-size:12.5px; color:var(--ink-faint); margin-top:16px; }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav__row">
+    <div class="topnav__logo">Scan<em>'</em>Run</div>
+    <nav class="topnav__links">
+      <a href="#concept">Concept</a>
+      <a href="#distances">Distances</a>
+      <a href="#parcours">Parcours</a>
+      <a href="#infos">Infos</a>
+    </nav>
+    <a href="#inscription" class="btn btn--fill">S'inscrire</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="hero__tag">13 mars 2027, Stade de Saint-Marcel, Marseille</span>
+      <h1 class="display">
+        <span class="line">La course qui</span>
+        <span class="line">se lit en scans</span>
+      </h1>
+      <p class="lede">5, 10 ou 21 km en boucles autour du stade de Saint-Marcel, à Marseille, avec six points de passage à scanner à chaque tour. Chaque scan valide votre passage, débloque un bonus, et fait vivre le classement en direct.</p>
+      <div class="hero__ctas">
+        <a href="#inscription" class="btn btn--fill">Réserver un dossard</a>
+        <a href="#parcours" class="btn btn--outline">Voir le parcours</a>
+      </div>
+
+      <div class="countdown" id="countdown">
+        <div class="countdown__cell"><span class="countdown__num" id="cd-days">—</span><span class="countdown__unit">jours</span></div>
+        <span class="countdown__sep">/</span>
+        <div class="countdown__cell"><span class="countdown__num" id="cd-hours">—</span><span class="countdown__unit">heures</span></div>
+        <span class="countdown__sep">/</span>
+        <div class="countdown__cell"><span class="countdown__num" id="cd-min">—</span><span class="countdown__unit">min</span></div>
+        <span class="countdown__sep">/</span>
+        <div class="countdown__cell"><span class="countdown__num" id="cd-sec">—</span><span class="countdown__unit">sec</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="route-track wrap">
+    <div class="route-track__rail" aria-hidden="true"></div>
+
+    <div class="stop" id="concept">
+      <div class="stop__marker">D</div>
+      <p class="stop__eyebrow">Le concept</p>
+      <h2 class="display">Un parcours, six scans</h2>
+      <p class="stop__intro">Le tracé classique existe toujours. Ce qui change : des bornes de scan disséminées sur la route, à trouver et valider au fil de la course.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step__num display">1</div>
+          <div>
+            <h3>Un dossard connecté</h3>
+            <p>Un QR code personnel, imprimé sur votre dossard ou envoyé après inscription.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num display">2</div>
+          <div>
+            <h3>Un scan à chaque borne</h3>
+            <p>Six points de passage sur le parcours. Chaque scan avec l'appli Scan'Run valide votre position et déclenche parfois un bonus.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__num display">3</div>
+          <div>
+            <h3>Un classement qui bouge en direct</h3>
+            <p>Chaque scan remonte aussitôt : vos proches suivent votre progression depuis l'appli, sans traçage GPS permanent.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop" id="distances">
+      <div class="stop__marker display">KM</div>
+      <p class="stop__eyebrow">Distances</p>
+      <h2 class="display">Trois formats, un même circuit</h2>
+      <p class="stop__intro">Plus la distance est longue, plus le circuit croise de bornes de scan.</p>
+
+      <div class="signposts">
+        <div class="signpost signpost--a">
+          <div class="signpost__km display">5</div>
+          <div class="signpost__unit">KILOMÈTRES</div>
+          <p class="signpost__name">Le Sprint</p>
+          <p class="signpost__desc">3 bornes, environ 3 tours du stade. Format découverte, idéal pour une première participation.</p>
+          <div class="signpost__price">20 €<small>tarif plein</small></div>
+        </div>
+        <div class="signpost signpost--b">
+          <div class="signpost__km display">10</div>
+          <div class="signpost__unit">KILOMÈTRES</div>
+          <p class="signpost__name">Le Classique</p>
+          <p class="signpost__desc">4 bornes, environ 6 tours du stade et de ses abords.</p>
+          <div class="signpost__price">28 €<small>tarif plein</small></div>
+        </div>
+        <div class="signpost signpost--c">
+          <div class="signpost__km display">21</div>
+          <div class="signpost__unit">KILOMÈTRES</div>
+          <p class="signpost__name">Le Grand Scan</p>
+          <p class="signpost__desc">6 bornes, environ 13 tours. Le circuit complet, pelouse et piste comprises.</p>
+          <div class="signpost__price">38 €<small>tarif plein</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop" id="parcours">
+      <div class="stop__marker display">GO</div>
+      <p class="stop__eyebrow">Parcours</p>
+      <h2 class="display">Une boucle, six bornes, autant de tours qu'il faut</h2>
+      <p class="stop__intro">Tout se déroule dans l'enceinte du stade de Saint-Marcel : pelouse, piste et abords des tribunes. Une boucle complète fait un peu plus de 400 mètres — vous l'enchaînez selon votre distance.</p>
+
+      <div class="checkpoints">
+        <div class="cp">
+          <div class="cp__badge display">D</div>
+          <div>
+            <h3>Départ — Pelouse centrale</h3>
+            <p>Retrait express des puces jusqu'à 30 minutes avant le départ, sur la pelouse.</p>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">1</div>
+          <div>
+            <h3>Borne 1 — Virage Nord</h3>
+            <p>Le passage le plus bruyant : le public s'installe ici pour encourager à chaque tour.</p>
+            <span class="cp__bonus">Bonus −2:00</span>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">2</div>
+          <div>
+            <h3>Borne 2 — Tribune Sud</h3>
+            <p>Ravitaillement en eau à chaque passage.</p>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">3</div>
+          <div>
+            <h3>Borne 3 — Piste d'athlétisme</h3>
+            <p>Le seul tronçon chronométré au mètre près, grâce au marquage de la piste.</p>
+            <span class="cp__bonus">Lot surprise</span>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">4</div>
+          <div>
+            <h3>Borne 4 — Abords des vestiaires</h3>
+            <p>Portion la plus abritée, à l'ombre des tribunes.</p>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">5</div>
+          <div>
+            <h3>Borne 5 — Parvis et buvette</h3>
+            <p>Ambiance musicale à chaque tour, dernier point avant de repasser par la pelouse.</p>
+          </div>
+        </div>
+        <div class="cp">
+          <div class="cp__badge display">A</div>
+          <div>
+            <h3>Arrivée — Pelouse centrale</h3>
+            <p>Scan final : le classement complet (course + bonus) s'affiche aussitôt sur l'appli.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop" id="infos">
+      <div class="stop__marker display">i</div>
+      <p class="stop__eyebrow">Infos pratiques</p>
+      <h2 class="display">Ce qu'il faut savoir</h2>
+
+      <div class="infos">
+        <div class="infos__cell">
+          <h4>Date</h4>
+          <p>Samedi 13 mars 2027</p>
+          <span>Départs échelonnés à partir de 9h00</span>
+        </div>
+        <div class="infos__cell">
+          <h4>Lieu</h4>
+          <p>Stade de Saint-Marcel, Marseille</p>
+          <span>Vestiaires et consigne sur place</span>
+        </div>
+        <div class="infos__cell">
+          <h4>Dans le dossard</h4>
+          <p>T-shirt technique + puce</p>
+          <span>Accès à l'appli de scan pendant 1 an</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stop stop--finish" id="inscription">
+      <div class="stop__marker display">🏁</div>
+      <p class="stop__eyebrow">Inscription</p>
+      <h2 class="display">Réservez votre dossard</h2>
+      <p class="stop__intro">Places limitées par distance. Le paiement se fait à l'étape suivante, via un prestataire sécurisé.</p>
+
+      <div class="register">
+        <div>
+          <form id="regForm">
+            <div class="form-row">
+              <div class="form-field">
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" required>
+              </div>
+              <div class="form-field">
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" required>
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="naissance">Date de naissance</label>
+                <input type="date" id="naissance" name="naissance" required>
+              </div>
+              <div class="form-field">
+                <label for="distance">Distance</label>
+                <select id="distance" name="distance" required>
+                  <option value="">Choisir —</option>
+                  <option value="5km">5 km — 20 €</option>
+                  <option value="10km">10 km — 28 €</option>
+                  <option value="21km">Semi (21 km) — 38 €</option>
+                </select>
+              </div>
+            </div>
+            <p class="form-note">Étape suivante : paiement sécurisé par carte. Aucune donnée bancaire n'est vue ni stockée par Scan'Run.</p>
+            <button type="submit" class="btn btn--fill">Continuer vers le paiement</button>
+          </form>
+
+          <div class="confirm-box" id="regConfirm">
+            <strong>Pré-inscription enregistrée localement.</strong>
+            <p id="regSummary" style="margin:10px 0 0;"></p>
+            <p style="margin:10px 0 0; color:var(--ink-soft); font-size:13px;">Démonstration de gabarit : cette page ne traite pas encore de paiement réel — elle prépare le terrain visuel pour un back-end sécurisé (Stripe ou équivalent).</p>
+          </div>
+        </div>
+
+        <div class="ticket">
+          <div class="ticket__top">
+            <h4>Tarifs — avant le 1er février 2027</h4>
+            <div class="ticket__row"><span>Le Sprint · 5 km</span><b class="display">20€</b></div>
+            <div class="ticket__row"><span>Le Classique · 10 km</span><b class="display">28€</b></div>
+            <div class="ticket__row"><span>Le Grand Scan · 21 km</span><b class="display">38€</b></div>
+          </div>
+          <div class="ticket__perf"></div>
+          <div class="ticket__bottom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z"/></svg>
+            <p>Paiement géré par un prestataire certifié PCI-DSS. Vos coordonnées bancaires ne transitent jamais par Scan'Run.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer__row">
+      <div class="footer__brand display">Scan'Run</div>
+      <div class="footer__links">
+        <a href="#concept">Concept</a>
+        <a href="#distances">Distances</a>
+        <a href="#parcours">Parcours</a>
+        <a href="#inscription">Inscription</a>
+        <a href="mailto:contact@scanrun.example">Contact</a>
+      </div>
+    </div>
+    <p class="footer__copy">Scan'Run — Stade de Saint-Marcel, Marseille. Course fictive de démonstration.</p>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var raceDate = new Date("2027-03-13T09:00:00");
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tick(){
+      var now = new Date();
+      var diff = raceDate - now;
+      if(diff < 0) diff = 0;
+      var d = Math.floor(diff / (1000*60*60*24));
+      var h = Math.floor((diff / (1000*60*60)) % 24);
+      var m = Math.floor((diff / (1000*60)) % 60);
+      var s = Math.floor((diff / 1000) % 60);
+      var elD = document.getElementById('cd-days');
+      var elH = document.getElementById('cd-hours');
+      var elM = document.getElementById('cd-min');
+      var elS = document.getElementById('cd-sec');
+      if(elD) elD.textContent = d;
+      if(elH) elH.textContent = pad(h);
+      if(elM) elM.textContent = pad(m);
+      if(elS) elS.textContent = pad(s);
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    var form = document.getElementById('regForm');
+    var confirmBox = document.getElementById('regConfirm');
+    var summary = document.getElementById('regSummary');
+    if(form){
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var prenom = document.getElementById('prenom').value.trim();
+        var nom = document.getElementById('nom').value.trim();
+        var distance = document.getElementById('distance').value;
+        var distLabel = { '5km':'5 km (20 €)', '10km':'10 km (28 €)', '21km':'Semi 21 km (38 €)' }[distance] || distance;
+
+        try{
+          localStorage.setItem('scanrun_preinscription', JSON.stringify({
+            prenom: prenom, nom: nom, distance: distance, savedAt: Date.now()
+          }));
+        }catch(err){ /* localStorage indisponible, on continue sans bloquer */ }
+
+        summary.textContent = prenom + ' ' + nom + ' — ' + distLabel;
+        confirmBox.classList.add('show');
+        confirmBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
